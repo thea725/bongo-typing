@@ -6,6 +6,7 @@ from PyQt6.QtCore import Qt, pyqtSignal
 from pynput import keyboard
 
 VK_Q = 0x51
+scale_factor = 0.7
 
 class BongoWindow(QWidget):
     
@@ -15,7 +16,15 @@ class BongoWindow(QWidget):
         super().__init__()
 
         self.img_untyping = QPixmap("./assets/bongo_normal.png")
+        self.img_untyping = self.img_untyping.scaled(
+            self.img_untyping.width() * scale_factor,
+            self.img_untyping.height() * scale_factor
+        )
         self.img_typing = QPixmap("./assets/bongo_typing.png")
+        self.img_typing = self.img_typing.scaled(
+            self.img_typing.width() * scale_factor,
+            self.img_typing.height() * scale_factor
+        )
 
         self.label = QLabel(self)
         self.label.setPixmap(self.img_untyping)
