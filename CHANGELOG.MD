@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file, using MAYOR
 - MINOR: Feature changes that compatible with previous version
 - PATCH: Small changes such as bug fix, optimization, etc
 
+# [0.0.3] - ConfigParser position
+## Added
+- Config save with config parser
+## Changed
+- assets new
+
 # [0.0.2] - Setting Size
 ## Added
 - Scaling Size

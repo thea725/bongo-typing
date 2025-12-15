@@ -1,9 +1,12 @@
 import sys
 import threading
 from PyQt6.QtWidgets import QApplication, QLabel, QWidget
-from PyQt6.QtGui import QPixmap, QShortcut, QKeySequence
-from PyQt6.QtCore import Qt, pyqtSignal
+from PyQt6.QtGui import QPixmap
+from PyQt6.QtCore import Qt, pyqtSignal, QPoint
 from pynput import keyboard
+import configparser as cp
+
+config = cp.ConfigParser()
 
 VK_Q = 0x51
 scale_factor = 0.7
@@ -15,12 +18,35 @@ class BongoWindow(QWidget):
     def __init__(self):
         super().__init__()
 
-        self.img_untyping = QPixmap("./assets/bongo_normal.png")
+        # Config Position Loading
+        if not config.read("config.ini"):
+            # Calculating Position
+            screen = QApplication.primaryScreen()
+            geom = screen.availableGeometry()
+            pos_x = geom.right() - self.width()
+            pos_y = geom.bottom() - self.height()
+
+            # Move and Save
+            self.move(QPoint(pos_x, pos_y))
+            config["app"] = {
+                "posx": pos_x,
+                "posy": pos_y
+            }
+            self.saveConfig()
+        else:
+            self.move(
+                QPoint(
+                    int(config["app"]["posx"]),
+                    int(config["app"]["posy"])
+                )
+            )
+
+        self.img_untyping = QPixmap("./assets/normal.png")
         self.img_untyping = self.img_untyping.scaled(
             self.img_untyping.width() * scale_factor,
             self.img_untyping.height() * scale_factor
         )
-        self.img_typing = QPixmap("./assets/bongo_typing.png")
+        self.img_typing = QPixmap("./assets/typing.png")
         self.img_typing = self.img_typing.scaled(
             self.img_typing.width() * scale_factor,
             self.img_typing.height() * scale_factor
@@ -89,11 +115,23 @@ class BongoWindow(QWidget):
     def mouseMoveEvent(self, event):
         if self.drag_pos:
             delta = event.globalPosition().toPoint() - self.drag_pos
-            self.move(self.pos() + delta)
+            pos = self.pos() + delta
+            self.move(pos)
             self.drag_pos = event.globalPosition().toPoint()
+
+            # save to config.ini
+            config["app"] = {
+                "posx": pos.x(),
+                "posy": pos.y()
+            }
+            self.saveConfig() 
 
     def mouseReleaseEvent(self, event):
         self.drag_pos = None
+    
+    def saveConfig(self):
+        with open("config.ini", "w") as f:
+            config.write(f)
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
